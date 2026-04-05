@@ -92,7 +92,7 @@ public class TeleOPnew extends OpMode {
     @Override
     public void loop() {
 
-        follower.setTeleOpDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, false);
+        follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
 
 
 
@@ -101,7 +101,7 @@ public class TeleOPnew extends OpMode {
 
         follower.update();
 
-        intake.setPower(gamepad1.left_trigger-gamepad1.right_trigger);
+        intake.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
 
 
 //
