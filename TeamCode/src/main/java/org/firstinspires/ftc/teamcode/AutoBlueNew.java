@@ -53,11 +53,11 @@ public class AutoBlueNew extends OpMode {
     public static double dx4 = 0;
     public static double dy4 = 0;
     Shooter shooter = new Shooter();
-    Sorter sorter = new Sorter();
-    Servo led;
-    CRServo servo;
+//    Sorter sorter = new Sorter();
+//    Servo led;
+//    CRServo servo;
 
-    Camera cam = new Camera();
+//    Camera cam = new Camera();
     private final Timer shootTimer = new Timer();
     public static double timeForShoot = 1;
     public static double tagHoldSeconds = 0.15;
@@ -184,17 +184,18 @@ public class AutoBlueNew extends OpMode {
 //        Constants.driveConstants.maxPower(maxVelocityPower);
 
         // hardware
-        led = hardwareMap.get(Servo.class, "led");
+//        led = hardwareMap.get(Servo.class, "led");
         // CRServo for aiming
-        servo = hardwareMap.get(CRServo.class, "angle");
+//        servo = hardwareMap.get(CRServo.class, "angle");
 
-        cam.init(hardwareMap);
+//        cam.init(hardwareMap);
 
         shooter.init(hardwareMap, true);
-        sorter.init(hardwareMap);
+//        sorter.init(hardwareMap);
 
         // intake motors
         intake = hardwareMap.get(DcMotorEx.class, "intake");
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
 
@@ -211,7 +212,7 @@ public class AutoBlueNew extends OpMode {
         shooter.shootON(data);
         serv.resetTimer();
         servoDelay = false;
-        servo.setPower(angle);
+//        servo.setPower(angle);
         opTimer.resetTimer();
     }
 
@@ -360,13 +361,13 @@ public class AutoBlueNew extends OpMode {
 
         follower.update();
         updatePathFSM();      // path FSM (calls shooting() inside SHOOT states)
-        cam.update();         // update camera after shooter to keep timing consistent
+//        cam.update();         // update camera after shooter to keep timing consistent
 
         // tag "hold" logic
-        if (cam.hasTag) {
-            lastSeenTime = now;
-        }
-        boolean haveRecentTag = (now - lastSeenTime) <= tagHoldSeconds;
+//        if (cam.hasTag) {
+//            lastSeenTime = now;
+//        }
+//        boolean haveRecentTag = (now - lastSeenTime) <= tagHoldSeconds;
 
         // Auto-aim: только в стадиях стрельбы и только если камера видит метку
 
@@ -374,7 +375,7 @@ public class AutoBlueNew extends OpMode {
 
         // sorter FSM must run every loop
         shooter.shootON(data);
-        sorter.updateTransfer();
+//        sorter.updateTransfer();
         telemetry.addData("Shooter target RPM", shooter.getTargetRpm());
         telemetry.addData("Shooter meas RPM", shooter.getMeasuredRpm());
         telemetry.addData("PathState: ", pathState);
@@ -420,6 +421,7 @@ public class AutoBlueNew extends OpMode {
                     pathState = PathState.GO_TO_COLLECT_ART1; // <- now go to first split state
                     pathTimer.resetTimer();
                     delay = true;
+                    intakeState = 1;
 
                 }
                 break;
@@ -435,7 +437,7 @@ public class AutoBlueNew extends OpMode {
                 }
 
                 if (!follower.isBusy()) {
-                    pathState = PathState.COLLECT_ART2;
+                    pathState = PathState.COLLECT_ART1;
                     pathTimer.resetTimer();
                     delay = true;
                 }
@@ -520,7 +522,7 @@ public class AutoBlueNew extends OpMode {
                 }
 
                 if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >TIME_FOR_GATE_INTAKE ) {
-                    pathState = PathState.COLLECT_ART2;
+                    pathState = PathState.RETURN_2;
                     pathTimer.resetTimer();
                     delay = true;
                 }
@@ -680,7 +682,7 @@ public class AutoBlueNew extends OpMode {
 
     private void shooterOff() {
         data = shooter.createCanonData(0, 0);
-        lockerState(lockerStates[0]);
+        lockerState(lockerStates[1]);
     }
 
     private void intakeLogic() {
@@ -696,7 +698,7 @@ public class AutoBlueNew extends OpMode {
     private void shooting() {
         intakeState = 1;
         intakeLogic();
-        lockerState(lockerStates[1]);
+        lockerState(lockerStates[0]);
     }
     public void waitS(double s)
     {

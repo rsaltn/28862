@@ -19,7 +19,7 @@
     public class Constants
     {
         public static FollowerConstants followerConstants = new FollowerConstants()
-                .mass(13)
+                .mass(11.43)
                 .forwardZeroPowerAcceleration(-38.33603205192884)
                 .lateralZeroPowerAcceleration(-70)
                 .translationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0.02))
@@ -35,21 +35,21 @@
                 .rightRearMotorName("rr")
                 .leftRearMotorName("lr")
                 .leftFrontMotorName("lf")
-                .leftFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
-                .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-                .rightFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
-                .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
+                .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
+                .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
+                .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
+                .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
                 .useBrakeModeInTeleOp(true)
                 .xVelocity(70.337903120386315)
                 .yVelocity(40.66839599609376);
         //using shooter l
         public static PinpointConstants localizerConstants = new PinpointConstants()
-                .forwardPodY(150)
-                .strafePodX(0)
+                .forwardPodY(20)
+                .strafePodX(-90)
                 .distanceUnit(DistanceUnit.MM)
                 .hardwareMapName("pinpoint")
                 .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
-                .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
+                .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
                 .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         public static PathConstraints pathConstraints = new PathConstraints
