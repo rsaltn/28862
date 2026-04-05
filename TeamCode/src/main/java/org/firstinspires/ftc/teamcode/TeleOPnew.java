@@ -27,11 +27,9 @@ import java.util.List;
 public class TeleOPnew extends OpMode {
 
     Follower follower;
-//    Servo led;
-//    CRServo servo;
 
+    CRServo locker;
     DcMotorEx intake;
-//    AnalogInput encoderT;
 
     TelemetryManager telemetryP;
 
@@ -46,7 +44,7 @@ public class TeleOPnew extends OpMode {
 
 
 
-    public static boolean autoAdjacement = false;
+    public static boolean autoAdjacement = false, lockerMode = false;
 
 
     public static double tagHoldSeconds = 0.15;
@@ -68,7 +66,7 @@ public class TeleOPnew extends OpMode {
         follower.startTeleopDrive(true);
         data = shooter.createCanonData(velocity, angle);
         Constants.driveConstants.maxPower(1);
-
+        locker.setPower(0.4);
     }
 
     @Override
@@ -76,8 +74,8 @@ public class TeleOPnew extends OpMode {
         follower = Constants.createFollower(hardwareMap);
 
         Constants.driveConstants.maxPower(1);
+        locker = hardwareMap.get(CRServo.class,"locker");
 
-//        servo = hardwareMap.get(CRServo.class, "angle");
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -103,76 +101,7 @@ public class TeleOPnew extends OpMode {
 
         follower.update();
 
-        // Обработка нажатия кнопки Circle (выстрелить 3 шара)
-        /*if (gamepad1.circle && !isShootingInProgress) {
-            // Запускаем новый процесс выстрела, если ещё не начали
-            isShootingInProgress = true;
-            ballsShot = 0; // Начинаем с первого мяча
-
-            // Выполняем выстрелы по паттерну
-            new Thread(() -> {
-                switch (pattern) {
-                    case GPP:
-                        shootOneBall(Sorter.detectedColor.GREEN);
-                        shootOneBall(Sorter.detectedColor.PURPLE);
-                        shootOneBall(Sorter.detectedColor.PURPLE);
-                        break;
-                    case PGP:
-                        shootOneBall(Sorter.detectedColor.PURPLE);
-                        shootOneBall(Sorter.detectedColor.GREEN);
-                        shootOneBall(Sorter.detectedColor.PURPLE);
-                        break;
-                    case PPG:
-                        shootOneBall(Sorter.detectedColor.PURPLE);
-                        shootOneBall(Sorter.detectedColor.PURPLE);
-                        shootOneBall(Sorter.detectedColor.GREEN);
-                        break;
-                    default:
-                        break;
-                }
-            }).start();
-        }
-        else if (gamepad1.circle)
-        {
-            new Thread(() -> {
-                switch (pattern) {
-                    case GPP:
-                        if(ballsShot==1){shootOneBall(Sorter.detectedColor.PURPLE);}
-                        if(ballsShot==2){shootOneBall(Sorter.detectedColor.PURPLE);}
-                        if(ballsShot>2){shootOneBall(Sorter.detectedColor.PURPLE);}
-
-                        break;
-                    case PGP:
-                        if(ballsShot==1){shootOneBall(Sorter.detectedColor.GREEN);}
-                        if(ballsShot==2){shootOneBall(Sorter.detectedColor.PURPLE);}
-                        if(ballsShot>2){shootOneBall(Sorter.detectedColor.PURPLE);}
-
-                        break;
-                    case PPG:
-                        if(ballsShot==1){shootOneBall(Sorter.detectedColor.PURPLE);}
-                        if(ballsShot==2){shootOneBall(Sorter.detectedColor.GREEN);}
-                        if(ballsShot>2){shootOneBall(Sorter.detectedColor.PURPLE);}
-
-                        break;
-                    default:
-                        break;
-                }
-            }).start();
-        }
-        if(!gamepad1.circle){isShootingInProgress = false;ballsShot = 0;}*/
-
-
-
-
-        if(gamepad1.left_bumper){
-            intake.setPower(1);
-        }
-        else if(gamepad1.right_bumper){
-            intake.setPower(-1);
-        }
-        else{
-            intake.setPower(0);
-        }
+        intake.setPower(gamepad1.left_trigger-gamepad1.right_trigger);
 
 
 //
@@ -213,6 +142,10 @@ public class TeleOPnew extends OpMode {
 //            }
 //
 //        }
+
+        if(gamepad1.dpadDownWasPressed()) {lockerMode = !lockerMode;}
+        if(lockerMode){locker.setPower(0.4);}
+        else{locker.setPower(0.05);}
 
         if (gamepad1.squareWasPressed()) {
             autoAdjacement = false;
