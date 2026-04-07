@@ -221,6 +221,7 @@ public class AutoBlue extends OpMode {
 //        servoBaselineCmd = servo.getPower();
 //        servoLastCmd = servoBaselineCmd;
 
+
         buildPaths();
         pathTimer.resetTimer();
         opTimer.resetTimer();
