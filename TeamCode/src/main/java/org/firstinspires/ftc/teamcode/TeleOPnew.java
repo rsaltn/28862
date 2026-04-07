@@ -29,7 +29,7 @@ public class TeleOPnew extends OpMode {
     Follower follower;
 
     CRServo locker;
-    DcMotorEx intake;
+    DcMotorEx intake, Heading;
 
     TelemetryManager telemetryP;
 
@@ -74,6 +74,9 @@ public class TeleOPnew extends OpMode {
         follower = Constants.createFollower(hardwareMap);
 
         Constants.driveConstants.maxPower(1);
+
+        Heading = hardwareMap.get(DcMotorEx.class, "s_heading");
+
         locker = hardwareMap.get(CRServo.class,"locker");
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
@@ -92,7 +95,7 @@ public class TeleOPnew extends OpMode {
     @Override
     public void loop() {
 
-        follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
+        follower.setTeleOpDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, false);
 
 
 
@@ -145,22 +148,24 @@ public class TeleOPnew extends OpMode {
 
         if(gamepad1.dpadDownWasPressed()) {lockerMode = !lockerMode;}
         if(lockerMode){locker.setPower(0.4);}
-        else{locker.setPower(0.05);}
+        else{locker.setPower(0.05);gamepad1.rumble(1,1,100);}
 
-        if (gamepad1.squareWasPressed()) {
+        Heading.setPower((gamepad1.left_bumper?-0.3:gamepad1.right_bumper?0.3:0));
+
+        if (gamepad1.square) {
             autoAdjacement = false;
-            data = shooter.createCanonData(3300, 0);
+            data = shooter.createCanonData(shooter.getTargetRpm()+(gamepad1.dpad_left?-1:1), 0);
 //            servo.setPower(-0.7);
             autoAim = true;
         }
         if (gamepad1.triangleWasPressed()) {
             autoAdjacement = false;
-            data = shooter.createCanonData(4100, 60);
+            data = shooter.createCanonData(980, 60);
             autoAim = true;
         }
         if (gamepad1.circleWasPressed()) {
             autoAdjacement = false;
-            data = shooter.createCanonData(5000,140);
+            data = shooter.createCanonData(1200,140);
             autoAim = true;
         }
         if (gamepad1.crossWasPressed()) {
@@ -173,6 +178,10 @@ public class TeleOPnew extends OpMode {
         if(gamepad1.share){follower.setPose(new Pose (follower.getPose().getX(),follower.getPose().getY(), Math.toRadians(0)));telemetry.addData("Used", getRuntime());}
         telemetry.addData("Shooter target RPM", shooter.getTargetRpm());
         telemetry.addData("Shooter meas RPM", shooter.getMeasuredRpm());
+        telemetry.addData("Shooter right", shooter.right_canon.getVelocity());
+        telemetry.addData("Shooter left", shooter.left_canon.getVelocity());
+        telemetry.addData("Shooter right pos", shooter.right_canon.getCurrentPosition());
+        telemetry.addData("Shooter left pos", shooter.left_canon.getCurrentPosition());
         telemetry.addData("Shooter power", shooter.getLastPower());
         telemetry.addData("VelocityX", follower.drivetrain.xVelocity());
         telemetry.addData("Loop", getRuntime());

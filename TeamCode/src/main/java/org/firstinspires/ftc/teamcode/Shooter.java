@@ -69,12 +69,12 @@ public class Shooter {
         left_canon.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         left_canon.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        right_canon.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        left_canon.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         left_canon.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         right_canon.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        lastTicks = left_canon.getCurrentPosition();
+        lastTicks = (right_canon.getCurrentPosition() + left_canon.getCurrentPosition())/2;
         lastTime = timer.seconds();
 
         integral = 0.0;
@@ -88,7 +88,7 @@ public class Shooter {
     }
 
     private void updateMeasuredRpm() {
-        int ticks = left_canon.getCurrentPosition();
+        int ticks = (right_canon.getCurrentPosition() + left_canon.getCurrentPosition())/2;
         double t = timer.seconds();
         double dt = t - lastTime;
 
