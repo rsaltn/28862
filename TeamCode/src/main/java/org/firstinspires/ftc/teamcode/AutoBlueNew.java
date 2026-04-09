@@ -8,6 +8,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.paths.PathConstraints;
 import com.pedropathing.util.Timer;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -15,6 +16,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
@@ -40,7 +44,7 @@ public class AutoBlueNew extends OpMode {
     public static double angle = -0.68;
     public static double patternID = 1;
     public  static double timeInCheckballs = 0.32;
-    public static double[] d = {3730,57};
+    public static double[] d = {1000,0};
     public static double SHOOT_DELAY = 0.5; // секунды между transfer'ами
     public static double dxstart = 0;
     public static double dystart = 0;
@@ -88,15 +92,6 @@ public class AutoBlueNew extends OpMode {
         DONE
 
     }
-    private ShootState shootState = ShootState.IDLE;
-
-
-    public static Sorter.detectedColor[] colors = {Sorter.detectedColor.GREEN, Sorter.detectedColor.PURPLE,  Sorter.detectedColor.PURPLE};
-
-    public static Sorter.detectedColor[] colors1 = {Sorter.detectedColor.GREEN, Sorter.detectedColor.PURPLE,  Sorter.detectedColor.PURPLE};
-
-    public static Sorter.detectedColor[] colors2 = {Sorter.detectedColor.PURPLE, Sorter.detectedColor.GREEN, Sorter.detectedColor.PURPLE};
-    public static Sorter.detectedColor[] colors3 = {Sorter.detectedColor.PURPLE, Sorter.detectedColor.PURPLE, Sorter.detectedColor.GREEN};
 
 
 
@@ -169,12 +164,18 @@ public class AutoBlueNew extends OpMode {
     public static double delayT = 0.15; // small cooldown for servo adjustments (seconds)
     private boolean servoDelay = false;   // per-servo small cooldown for adjustments
     private int intakeState = 0;
-    private Pose startPose =new Pose(29.000, 134.000,Math.toRadians(143));
+    private Pose startPose =new Pose(29.000, 133.000,Math.toRadians(143));
     private final Pose End = new Pose(30, 58, Math.toRadians(90));
+    GoBildaPinpointDriver s_pinpoint;
+
 
 
     @Override
     public void init() {
+
+        s_pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "s_pinpoint");
+
+        s_pinpoint.setPosition(new Pose2D(DistanceUnit.CM,0,0, AngleUnit.DEGREES,0));
 
 
         follower = Constants.createFollower(hardwareMap);
@@ -195,7 +196,7 @@ public class AutoBlueNew extends OpMode {
 
         // intake motors
         intake = hardwareMap.get(DcMotorEx.class, "intake");
-        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+//        intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
 
@@ -203,7 +204,7 @@ public class AutoBlueNew extends OpMode {
         pathTimer.resetTimer();
         opTimer.resetTimer();
         pathState = PathState.START;
-        shootState = ShootState.IDLE;
+
         }
 
     @Override
@@ -219,9 +220,9 @@ public class AutoBlueNew extends OpMode {
     private void buildPaths() {
         startToShoot = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(29.000, 134.000),
+                                new Pose(29.000, 133.000),
 
-                                new Pose(50.000, 84.000)
+                                new Pose(60.000, 84.000)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(143), Math.toRadians(180))
 
@@ -229,9 +230,9 @@ public class AutoBlueNew extends OpMode {
 
         shootTocollect1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(50.000, 84.000),
+                                new Pose(60.000, 84.000),
 
-                                new Pose(50.000, 60.000)
+                                new Pose(60.000, 60.000)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
@@ -239,9 +240,9 @@ public class AutoBlueNew extends OpMode {
 
         collect1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(50.000, 60.000),
+                                new Pose(60.000, 60.000),
 
-                                new Pose(9.000, 60.000)
+                                new Pose(11.000, 60.000)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
@@ -249,9 +250,9 @@ public class AutoBlueNew extends OpMode {
 
         returnToStart1 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(9.000, 60.000),
+                                new Pose(11.000, 60.000),
                                 new Pose(39.000, 57.000),
-                                new Pose(50.000, 84.000)
+                                new Pose(60.000, 84.000)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
@@ -259,9 +260,9 @@ public class AutoBlueNew extends OpMode {
 
         shootToGate = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(50.000, 84.000),
+                                new Pose(60, 84.000),
 
-                                new Pose(22.000, 65.000)
+                                new Pose(22.000, 66.200)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
@@ -269,9 +270,9 @@ public class AutoBlueNew extends OpMode {
 
         gate = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(22.000, 65.000),
+                                new Pose(22.000, 66.2),
 
-                                new Pose(16.000, 65.000)
+                                new Pose(16.500, 66.200)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
@@ -279,9 +280,9 @@ public class AutoBlueNew extends OpMode {
 
         gateToCollect = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(16.000, 65.000),
+                                new Pose(16.000, 66.200),
                                 new Pose(19.000, 57.000),
-                                new Pose(9.000, 54.000)
+                                new Pose(11.000, 54.000)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(120))
 
@@ -289,9 +290,9 @@ public class AutoBlueNew extends OpMode {
 
         returnToStart2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(9.000, 54.000),
+                                new Pose(11.000, 54.000),
 
-                                new Pose(50.000, 84.000)
+                                new Pose(60, 84.000)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(120), Math.toRadians(180))
 
@@ -299,7 +300,7 @@ public class AutoBlueNew extends OpMode {
 
         collect2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(50.000, 84.000),
+                                new Pose(60, 84.000),
 
                                 new Pose(16.000, 84.000)
                         )
@@ -311,7 +312,7 @@ public class AutoBlueNew extends OpMode {
                         new BezierLine(
                                 new Pose(16.000, 84.000),
 
-                                new Pose(50.000, 84.000)
+                                new Pose(60, 84.000)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
@@ -319,9 +320,9 @@ public class AutoBlueNew extends OpMode {
 
         shootTocollect2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(50.000, 84.000),
+                                new Pose(60, 84.000),
 
-                                new Pose(50.000, 36.000)
+                                new Pose(60, 36.000)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
@@ -329,9 +330,9 @@ public class AutoBlueNew extends OpMode {
 
         collect3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(50.000, 36.000),
+                                new Pose(60, 36.000),
 
-                                new Pose(9.000, 36.000)
+                                new Pose(11.000, 36.000)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
@@ -339,9 +340,9 @@ public class AutoBlueNew extends OpMode {
 
         returnToStart4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(9.000, 36.000),
+                                new Pose(11.000, 36.000),
 
-                                new Pose(50.000, 84.000)
+                                new Pose(60, 84.000)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
 
@@ -353,9 +354,7 @@ public class AutoBlueNew extends OpMode {
     /* ================= LOOP ================= */
     @Override
     public void loop() {
-        if(patternID == 1){colors = colors1;}
-        if(patternID == 2){colors = colors2;}
-        if(patternID == 3){colors = colors3;}
+
 
         double now = getRuntime();
 
@@ -393,6 +392,8 @@ public class AutoBlueNew extends OpMode {
 
         switch (pathState) {
             case START:
+                intakeState = 1;
+
                 startPathOnce(startToShoot);
                 data = shooter.createCanonData(d[0],d[1]);
 
@@ -401,9 +402,7 @@ public class AutoBlueNew extends OpMode {
                     pathTimer.resetTimer();
                     delay = true;
 
-                    // reset shooting FSM for the new shooting phase
-                    shootState = ShootState.IDLE;
-                    shootIndex = 0;
+                    // reset shooting FSM for the new s-
                     shootTime.resetTimer();
                 }
                 break;
@@ -475,8 +474,6 @@ public class AutoBlueNew extends OpMode {
                     pathState = PathState.SHOOT_2;
                     delay = true;
 
-                    // reset shooting FSM for the next shooting phase
-                    shootState = ShootState.IDLE;
                     shootIndex = 0;
                     shootTime.resetTimer();
                 }
@@ -541,8 +538,6 @@ public class AutoBlueNew extends OpMode {
                     pathState = PathState.SHOOT_3;
                     delay = true;
 
-                    // reset shooting FSM
-                    shootState = ShootState.IDLE;
                     shootIndex = 0;
                     shootTime.resetTimer();
                 }
@@ -644,8 +639,6 @@ public class AutoBlueNew extends OpMode {
                     pathState = PathState.SHOOT_5;
                     delay = true;
 
-                    // reset shooting FSM
-                    shootState = ShootState.IDLE;
                     shootIndex = 0;
                 }
                 break;
@@ -683,6 +676,7 @@ public class AutoBlueNew extends OpMode {
     private void shooterOff() {
         data = shooter.createCanonData(0, 0);
         lockerState(lockerStates[1]);
+//        intakeState = 0;
     }
 
     private void intakeLogic() {

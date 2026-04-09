@@ -20,11 +20,11 @@
     {
         public static FollowerConstants followerConstants = new FollowerConstants()
                 .mass(11.43)
-                .forwardZeroPowerAcceleration(-38.33603205192884)
-                .lateralZeroPowerAcceleration(-70)
-                .translationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0.02))
+                .forwardZeroPowerAcceleration(-28.33603205192884)
+                .lateralZeroPowerAcceleration(-65)
+                .translationalPIDFCoefficients(new PIDFCoefficients(0.09,0,0.01,0.01))
                 .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.02,0,0.00000000025,1,0.07))
-                .headingPIDFCoefficients(new PIDFCoefficients(0.6,0,0.07,0.01));
+                .headingPIDFCoefficients(new PIDFCoefficients(0.65,0,0.01,0.015));
 
         //    -7152.396568518804
     //    -217.37893357833778
@@ -40,28 +40,28 @@
                 .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
                 .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
                 .useBrakeModeInTeleOp(true)
-                .xVelocity(70.337903120386315)
-                .yVelocity(40.66839599609376);
+                .xVelocity(80.337903120386315)
+                .yVelocity(55.66839599609376);
         //using shooter l
         public static PinpointConstants localizerConstants = new PinpointConstants()
-                .forwardPodY(20)
-                .strafePodX(-90)
+                .forwardPodY(-50)
+                .strafePodX(-150)
                 .distanceUnit(DistanceUnit.MM)
                 .hardwareMapName("pinpoint")
                 .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
-                .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
+                .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
                 .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         public static PathConstraints pathConstraints = new PathConstraints
                 (
-                        0.995,
-                        0.5,
-                        0.5,
-                        0.03,
+                        0.99,
+                        2,
+                        2,
+                        0.1,
                         100,
-                        0.4,
+                        0.9,
                         20,
-                        0.1
+                        0.66
                 );
         public static Follower createFollower(HardwareMap hardwareMap)
         {

@@ -6,32 +6,37 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.util.Timer;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.List;
 
 
 @Configurable
-@TeleOp(name = "TeleOpnew frr", group = "TeleOp")
+@TeleOp(name = "TeleOp New", group = "TeleOp")
 public class TeleOPnew extends OpMode {
 
     Follower follower;
-//    Servo led;
-//    CRServo servo;
+    GoBildaPinpointDriver s_pinpoint;
 
-    DcMotorEx intake;
-//    AnalogInput encoderT;
+
+    CRServo locker;
+    DcMotorEx intake, Heading;
 
     TelemetryManager telemetryP;
 
@@ -46,7 +51,9 @@ public class TeleOPnew extends OpMode {
 
 
 
-    public static boolean autoAdjacement = false;
+    public static boolean autoAdjacement = false, lockerMode = true;
+
+    public static double targetHeading = 0;
 
 
     public static double tagHoldSeconds = 0.15;
@@ -68,16 +75,23 @@ public class TeleOPnew extends OpMode {
         follower.startTeleopDrive(true);
         data = shooter.createCanonData(velocity, angle);
         Constants.driveConstants.maxPower(1);
-
+        locker.setPower(0.4);
     }
 
     @Override
     public void init() {
+        s_pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "s_pinpoint");
+
+        s_pinpoint.setPosition(new Pose2D(DistanceUnit.CM,0,0,AngleUnit.DEGREES,0));
+
         follower = Constants.createFollower(hardwareMap);
 
         Constants.driveConstants.maxPower(1);
 
-//        servo = hardwareMap.get(CRServo.class, "angle");
+        Heading = hardwareMap.get(DcMotorEx.class, "s_heading");
+
+        locker = hardwareMap.get(CRServo.class,"locker");
+
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -89,90 +103,22 @@ public class TeleOPnew extends OpMode {
         telemetryP = PanelsTelemetry.INSTANCE.getTelemetry();
 
 
+        Heading.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     @Override
     public void loop() {
 
-        follower.setTeleOpDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, false);
+        follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
 
 
-
+        s_pinpoint.update();
 
         telemetry.clearAll();
 
         follower.update();
 
-        // Обработка нажатия кнопки Circle (выстрелить 3 шара)
-        /*if (gamepad1.circle && !isShootingInProgress) {
-            // Запускаем новый процесс выстрела, если ещё не начали
-            isShootingInProgress = true;
-            ballsShot = 0; // Начинаем с первого мяча
-
-            // Выполняем выстрелы по паттерну
-            new Thread(() -> {
-                switch (pattern) {
-                    case GPP:
-                        shootOneBall(Sorter.detectedColor.GREEN);
-                        shootOneBall(Sorter.detectedColor.PURPLE);
-                        shootOneBall(Sorter.detectedColor.PURPLE);
-                        break;
-                    case PGP:
-                        shootOneBall(Sorter.detectedColor.PURPLE);
-                        shootOneBall(Sorter.detectedColor.GREEN);
-                        shootOneBall(Sorter.detectedColor.PURPLE);
-                        break;
-                    case PPG:
-                        shootOneBall(Sorter.detectedColor.PURPLE);
-                        shootOneBall(Sorter.detectedColor.PURPLE);
-                        shootOneBall(Sorter.detectedColor.GREEN);
-                        break;
-                    default:
-                        break;
-                }
-            }).start();
-        }
-        else if (gamepad1.circle)
-        {
-            new Thread(() -> {
-                switch (pattern) {
-                    case GPP:
-                        if(ballsShot==1){shootOneBall(Sorter.detectedColor.PURPLE);}
-                        if(ballsShot==2){shootOneBall(Sorter.detectedColor.PURPLE);}
-                        if(ballsShot>2){shootOneBall(Sorter.detectedColor.PURPLE);}
-
-                        break;
-                    case PGP:
-                        if(ballsShot==1){shootOneBall(Sorter.detectedColor.GREEN);}
-                        if(ballsShot==2){shootOneBall(Sorter.detectedColor.PURPLE);}
-                        if(ballsShot>2){shootOneBall(Sorter.detectedColor.PURPLE);}
-
-                        break;
-                    case PPG:
-                        if(ballsShot==1){shootOneBall(Sorter.detectedColor.PURPLE);}
-                        if(ballsShot==2){shootOneBall(Sorter.detectedColor.GREEN);}
-                        if(ballsShot>2){shootOneBall(Sorter.detectedColor.PURPLE);}
-
-                        break;
-                    default:
-                        break;
-                }
-            }).start();
-        }
-        if(!gamepad1.circle){isShootingInProgress = false;ballsShot = 0;}*/
-
-
-
-
-        if(gamepad1.left_bumper){
-            intake.setPower(1);
-        }
-        else if(gamepad1.right_bumper){
-            intake.setPower(-1);
-        }
-        else{
-            intake.setPower(0);
-        }
+        intake.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
 
 
 //
@@ -214,20 +160,35 @@ public class TeleOPnew extends OpMode {
 //
 //        }
 
-        if (gamepad1.squareWasPressed()) {
+
+        if(gamepad1.dpadDownWasPressed()) {lockerMode = !lockerMode;}
+        if(lockerMode){locker.setPower(0.4);}
+        else{locker.setPower(0.05);gamepad1.rumble(1,1,100);}
+
+        //Heading.setPower((gamepad1.left_bumper?-0.3:gamepad1.right_bumper?0.3:0));
+
+        //Heading.setPower(Math.abs(targetHeading-s_pinpoint.getHeading(AngleUnit.DEGREES))>0.5?targetHeading-s_pinpoint.getHeading(AngleUnit.DEGREES)/45:0);
+
+        //targetHeading += (gamepad1.left_bumper ? -0.1 : gamepad1.right_bumper ? 0.1 : 0);
+
+
+        if(gamepad1.touchpad){s_pinpoint.resetPosAndIMU();}
+
+
+        if (gamepad1.square) {
             autoAdjacement = false;
-            data = shooter.createCanonData(3300, 0);
+            data = shooter.createCanonData(shooter.getTargetRpm()+(gamepad1.dpad_left?-1:1), 0);
 //            servo.setPower(-0.7);
             autoAim = true;
         }
         if (gamepad1.triangleWasPressed()) {
             autoAdjacement = false;
-            data = shooter.createCanonData(4100, 60);
+            data = shooter.createCanonData(980, 60);
             autoAim = true;
         }
         if (gamepad1.circleWasPressed()) {
             autoAdjacement = false;
-            data = shooter.createCanonData(5000,140);
+            data = shooter.createCanonData(1200,140);
             autoAim = true;
         }
         if (gamepad1.crossWasPressed()) {
@@ -240,11 +201,17 @@ public class TeleOPnew extends OpMode {
         if(gamepad1.share){follower.setPose(new Pose (follower.getPose().getX(),follower.getPose().getY(), Math.toRadians(0)));telemetry.addData("Used", getRuntime());}
         telemetry.addData("Shooter target RPM", shooter.getTargetRpm());
         telemetry.addData("Shooter meas RPM", shooter.getMeasuredRpm());
+        telemetry.addData("Shooter right", shooter.right_canon.getVelocity());
+        telemetry.addData("Shooter left", shooter.left_canon.getVelocity());
+        telemetry.addData("Shooter right pos", shooter.right_canon.getCurrentPosition());
+        telemetry.addData("Shooter left pos", shooter.left_canon.getCurrentPosition());
         telemetry.addData("Shooter power", shooter.getLastPower());
         telemetry.addData("VelocityX", follower.drivetrain.xVelocity());
         telemetry.addData("Loop", getRuntime());
         telemetry.addData("LSY", gamepad1.left_stick_y);
         telemetry.addData("share", gamepad1.share);
+        telemetry.addData("s_pinpoint in degrees", s_pinpoint.getHeading(AngleUnit.DEGREES));
+        telemetry.addData("s_heading target degree", targetHeading);
         telemetry.update();
         telemetryP.update();
 
