@@ -40,7 +40,7 @@ public class AutoBlueNew extends OpMode {
     public static double angle = -0.68;
     public static double patternID = 1;
     public  static double timeInCheckballs = 0.32;
-    public static double[] d = {3730,57};
+    public static double[] d = {980,57};
     public static double SHOOT_DELAY = 0.5; // секунды между transfer'ами
     public static double dxstart = 0;
     public static double dystart = 0;

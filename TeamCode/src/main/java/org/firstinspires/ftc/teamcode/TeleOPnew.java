@@ -6,17 +6,22 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.util.Timer;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.List;
@@ -27,6 +32,8 @@ import java.util.List;
 public class TeleOPnew extends OpMode {
 
     Follower follower;
+    GoBildaPinpointDriver s_pinpoint;
+
 
     CRServo locker;
     DcMotorEx intake, Heading;
@@ -44,7 +51,9 @@ public class TeleOPnew extends OpMode {
 
 
 
-    public static boolean autoAdjacement = false, lockerMode = false;
+    public static boolean autoAdjacement = false, lockerMode = true;
+
+    public static double targetHeading = 0;
 
 
     public static double tagHoldSeconds = 0.15;
@@ -71,6 +80,10 @@ public class TeleOPnew extends OpMode {
 
     @Override
     public void init() {
+        s_pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "s_pinpoint");
+
+        s_pinpoint.setPosition(new Pose2D(DistanceUnit.CM,0,0,AngleUnit.DEGREES,0));
+
         follower = Constants.createFollower(hardwareMap);
 
         Constants.driveConstants.maxPower(1);
@@ -90,15 +103,16 @@ public class TeleOPnew extends OpMode {
         telemetryP = PanelsTelemetry.INSTANCE.getTelemetry();
 
 
+        Heading.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     @Override
     public void loop() {
 
-        follower.setTeleOpDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, false);
+        follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
 
 
-
+        s_pinpoint.update();
 
         telemetry.clearAll();
 
@@ -146,11 +160,20 @@ public class TeleOPnew extends OpMode {
 //
 //        }
 
+
         if(gamepad1.dpadDownWasPressed()) {lockerMode = !lockerMode;}
         if(lockerMode){locker.setPower(0.4);}
         else{locker.setPower(0.05);gamepad1.rumble(1,1,100);}
 
-        Heading.setPower((gamepad1.left_bumper?-0.3:gamepad1.right_bumper?0.3:0));
+        //Heading.setPower((gamepad1.left_bumper?-0.3:gamepad1.right_bumper?0.3:0));
+
+        Heading.setPower(Math.abs(targetHeading-s_pinpoint.getHeading(AngleUnit.DEGREES))>0.5?targetHeading-s_pinpoint.getHeading(AngleUnit.DEGREES)/45:0);
+
+        targetHeading += (gamepad1.left_bumper ? -0.1 : gamepad1.right_bumper ? 0.1 : 0);
+
+
+        if(gamepad1.touchpad){s_pinpoint.resetPosAndIMU();}
+
 
         if (gamepad1.square) {
             autoAdjacement = false;
@@ -187,6 +210,8 @@ public class TeleOPnew extends OpMode {
         telemetry.addData("Loop", getRuntime());
         telemetry.addData("LSY", gamepad1.left_stick_y);
         telemetry.addData("share", gamepad1.share);
+        telemetry.addData("s_pinpoint in degrees", s_pinpoint.getHeading(AngleUnit.DEGREES));
+        telemetry.addData("s_heading target degree", targetHeading);
         telemetry.update();
         telemetryP.update();
 
