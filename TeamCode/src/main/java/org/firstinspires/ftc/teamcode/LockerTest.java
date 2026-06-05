@@ -7,27 +7,33 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Configurable
-@TeleOp(name = "HoodTest2", group = "TeleOp")
+@TeleOp(name = "Locker+ hood cr loop", group = "TeleOp")
 public class LockerTest extends OpMode {
 
-    Servo hood;
+    CRServo hood;
     CRServo locker;
 
-    public static double posL = 0.1;
+    CRServo angle;
+
+    public static double posL = 1;
 
 
     public static double posH = 0.1;
+    public static double posAngle = 0;
     @Override
     public void init() {
-        hood = hardwareMap.get(Servo.class,"hood");
+        hood = hardwareMap.get(CRServo.class,"hood");
         locker = hardwareMap.get(CRServo.class,"locker");
+        angle = hardwareMap.get(CRServo.class,"angle");
     }
-
-
+//------------------------------------
+// TODO: hood range from -0.3  to 1
+//------------------------------------
     @Override
     public void loop() {
-        hood.setPosition(posH);
+        hood.setPower(posH);
         locker.setPower(posL);
+        angle.setPower(posAngle);
 
     }
 

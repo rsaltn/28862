@@ -1,139 +1,165 @@
 package org.firstinspires.ftc.teamcode;
 
-import static java.lang.Math.abs;
-
 import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.panels.Panels;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
-import java.text.Format;
+@Disabled
 @Configurable
-@TeleOp(name="config", group="Linear OpMode")
-
+@TeleOp(name = "config", group = "Linear OpMode")
 public class Config extends LinearOpMode {
 
-    private ElapsedTime runtime = new ElapsedTime();
-    private DcMotorEx leftRear = null, rightRear = null, leftfront = null, rightfront = null, intakeMotor = null, shooter1 = null, shooter2 = null, take = null;
+    public static double DRIVE_POWER = 0.5;
+    public static double SHOOTER_POWER = 1.0;
+    public static double INTAKE_POWER = 1.0;
+    public static double SERVO_STEP = 0.01;
 
-    TelemetryManager telemetryM;
+    public static double HOOD_START = 0.50;
+    public static double LOCKER_START = 0.50;
+
+    private final ElapsedTime runtime = new ElapsedTime();
+
+    private DcMotorEx lf, rf, lr, rr;
+    private DcMotorEx intake_l, intake_r;
+    private DcMotorEx shooter_l, shooter_r;
+
+//    private Servo hood;
+//    private Servo locker;
+
+    private double hoodPos;
+    private double lockerPos;
+
     @Override
     public void runOpMode() {
-        telemetry.addData("Status", "Initialized");
+
+        lf = hardwareMap.get(DcMotorEx.class, "lf");
+        rf = hardwareMap.get(DcMotorEx.class, "rf");
+        lr = hardwareMap.get(DcMotorEx.class, "lr");
+        rr = hardwareMap.get(DcMotorEx.class, "rr");
+
+        intake_l = hardwareMap.get(DcMotorEx.class, "intake_l");
+        intake_r = hardwareMap.get(DcMotorEx.class, "intake_r");
+
+        shooter_l = hardwareMap.get(DcMotorEx.class, "shooter_l");
+        shooter_r = hardwareMap.get(DcMotorEx.class, "shooter_r");
+
+//        hood = hardwareMap.get(Servo.class, "hood");
+//        locker = hardwareMap.get(Servo.class, "locker");
+
+        lf.setDirection(DcMotor.Direction.FORWARD);
+        rf.setDirection(DcMotor.Direction.FORWARD);
+        lr.setDirection(DcMotor.Direction.FORWARD);
+        rr.setDirection(DcMotor.Direction.FORWARD);
+
+        intake_l.setDirection(DcMotor.Direction.REVERSE);
+        intake_r.setDirection(DcMotor.Direction.REVERSE);
+
+        shooter_l.setDirection(DcMotor.Direction.REVERSE);
+        shooter_r.setDirection(DcMotor.Direction.FORWARD);
+
+        lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        intake_l.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake_r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shooter_l.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shooter_r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+//        hoodPos = HOOD_START;
+//        lockerPos = LOCKER_START;
+
+//        hood.setPosition(hoodPos);
+//        locker.setPosition(lockerPos);
+
+        telemetry.addLine("Initialized");
         telemetry.update();
 
-        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-
-
-
-
-        intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeF");
-        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
-
-        take = hardwareMap.get(DcMotorEx.class, "intakeB");
-        take.setDirection(DcMotor.Direction.REVERSE);
-
-        shooter1 = hardwareMap.get(DcMotorEx.class, "shooter_r");
-        shooter2 = hardwareMap.get(DcMotorEx.class, "shooter_l");
-
-        shooter1.setDirection(DcMotor.Direction.REVERSE);
-        shooter2.setDirection(DcMotor.Direction.FORWARD);
-
-        leftfront  = hardwareMap.get(DcMotorEx.class, "lf");
-        rightfront = hardwareMap.get(DcMotorEx.class, "rf");
-        leftRear  = hardwareMap.get(DcMotorEx.class, "lr");
-        rightRear = hardwareMap.get(DcMotorEx.class, "rr");
-        leftfront.setDirection(DcMotor.Direction.FORWARD);
-        rightfront.setDirection(DcMotor.Direction.FORWARD);
-        leftRear.setDirection(DcMotor.Direction.FORWARD);
-        rightRear.setDirection(DcMotor.Direction.FORWARD);
-
-
-        int canon = 0;
-
-        leftfront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightfront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        take.setDirection(DcMotor.Direction.REVERSE);
         waitForStart();
         runtime.reset();
-        int rr=0,rf=0,lf=0,lr=0,shooter_r=0,shooter_l=0,intake=0,outtake = 0;
-
 
         while (opModeIsActive()) {
-            shooter1.setMotorEnable();
-            shooter2.setMotorEnable();
+            stopAllMotors();
 
-            if (gamepad1.y){
-                leftfront.setPower(0.5);
-                lf =1;
+            if (gamepad1.y) {
+                lf.setPower(DRIVE_POWER);
             }
-            else{ lf = 0;
-                leftfront.setPower(0);
+            if (gamepad1.x) {
+                rf.setPower(DRIVE_POWER);
+            }
+            if (gamepad1.a) {
+                rr.setPower(DRIVE_POWER);
+            }
+            if (gamepad1.b) {
+                lr.setPower(DRIVE_POWER);
+            }
 
+            if (gamepad1.left_bumper) {
+                shooter_l.setPower(SHOOTER_POWER);
+            }
+            if (gamepad1.right_bumper) {
+                shooter_r.setPower(SHOOTER_POWER);
             }
 
-            if (gamepad1.x){
-                rightfront.setPower(0.5);
-                rf = 1;
+            if (gamepad1.right_trigger > 0.1) {
+                intake_l.setPower(INTAKE_POWER);
             }
-            else{ rf = 0;rightfront.setPower(0);}
+            if (gamepad1.left_trigger > 0.1) {
+                intake_r.setPower(INTAKE_POWER);
+            }
 
-            if (gamepad1.a){
-                rightRear.setPower(0.5);
-                rr = 1;
+            if (gamepad1.dpad_up) {
+                hoodPos += SERVO_STEP;
             }
-            else{ rr = 0;rightRear.setPower(0);}
+            if (gamepad1.dpad_down) {
+                hoodPos -= SERVO_STEP;
+            }
+            if (gamepad1.dpad_right) {
+                lockerPos += SERVO_STEP;
+            }
+            if (gamepad1.dpad_left) {
+                lockerPos -= SERVO_STEP;
+            }
 
-            if (gamepad1.b){
-                leftRear.setPower(0.5);
-                lr = 1;
-            }
-            else{ lr = 0;leftRear.setPower(0);}
-            if (gamepad1.left_bumper){
-                shooter1.setPower(1);
-                shooter_l = 1;
-            }
-            else{ shooter_l = 0;shooter1.setPower(0);}
+            if (hoodPos < 0) hoodPos = 0;
+            if (hoodPos > 1) hoodPos = 1;
 
-            if (gamepad1.right_bumper){
-                shooter2.setPower(1);
-                shooter_r = 1;
-            }
-            else{ shooter_r = 0;shooter2.setPower(0);}
+            if (lockerPos < 0) lockerPos = 0;
+            if (lockerPos > 1) lockerPos = 1;
 
-            if (gamepad1.right_trigger >0.1){
-                intakeMotor.setPower(1);
-                intake = 1;
-            }
-            else{ intake = 0;intakeMotor.setPower(0);}
+//            hood.setPosition(hoodPos);
+//            locker.setPosition(lockerPos);
 
-            if (gamepad1.left_trigger >0.1){
-                take.setPower(1);
-                outtake = 1;
-            }else{ outtake = 0;take.setPower(0);}
-            telemetry.addData("lr",leftRear.getPower());
-            telemetry.addData("lf",leftfront.getPower());
-            telemetry.addData("shooter_r",shooter_r);
-            telemetry.addData("shooter_l",shooter_l);
-            telemetry.addData("intakeF",intake);
-            telemetry.addData("intakeB",outtake);
-            telemetry.addData("rr",rightRear.getPower());
-            telemetry.addData("rf",rightfront.getPower());
+            telemetry.addData("Runtime", runtime.seconds());
+            telemetry.addData("lf", lf.getPower());
+            telemetry.addData("rf", rf.getPower());
+            telemetry.addData("lr", lr.getPower());
+            telemetry.addData("rr", rr.getPower());
+            telemetry.addData("shooter_l", shooter_l.getPower());
+            telemetry.addData("shooter_r", shooter_r.getPower());
+            telemetry.addData("intake_l", intake_l.getPower());
+            telemetry.addData("intake_r", intake_r.getPower());
+            telemetry.addData("hood", hoodPos);
+            telemetry.addData("locker", lockerPos);
             telemetry.update();
-
         }
+
+        stopAllMotors();
+    }
+
+    private void stopAllMotors() {
+        lf.setPower(0);
+        rf.setPower(0);
+        lr.setPower(0);
+        rr.setPower(0);
+        intake_l.setPower(0);
+        intake_r.setPower(0);
+        shooter_l.setPower(0);
+        shooter_r.setPower(0);
     }
 }

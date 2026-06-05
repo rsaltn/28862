@@ -7,6 +7,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -23,7 +24,7 @@ import com.pedropathing.util.Timer;
 
 import java.util.List;
 
-
+@Disabled
 @Configurable
 @TeleOp(name = "TeleOpDuo", group = "TeleOp")
 public class TeleOPDuo extends OpMode {

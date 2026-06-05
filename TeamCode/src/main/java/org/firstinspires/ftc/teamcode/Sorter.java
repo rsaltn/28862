@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.pedropathing.util.Timer;
-
+@Disabled
 @Configurable
 public class Sorter {
     CRServo servoRR;

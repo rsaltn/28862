@@ -7,6 +7,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -19,7 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-
+@Disabled
 @Configurable
 @TeleOp(name = "TeleOp New Dou", group = "TeleOp")
 public class TeleOPDuonew extends OpMode {
@@ -86,7 +87,7 @@ public class TeleOPDuonew extends OpMode {
         locker = hardwareMap.get(CRServo.class,"locker");
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
-        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+//        intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
         follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
         follower.update();

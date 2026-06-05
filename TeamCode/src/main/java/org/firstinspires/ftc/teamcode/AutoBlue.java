@@ -9,6 +9,7 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.paths.PathConstraints;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -16,7 +17,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-
+@Disabled
 @Configurable
 @Autonomous(name = "Auto Blue ", group = "Digital")
 public class AutoBlue extends OpMode {

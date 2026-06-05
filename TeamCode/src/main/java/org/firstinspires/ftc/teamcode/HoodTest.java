@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
-
+@Disabled
 @Configurable
-@TeleOp(name = "HoodTest", group = "TeleOp")
+@TeleOp(name = "Hood+Locker Test", group = "TeleOp")
 public class HoodTest extends OpMode {
 
     Servo hood;
