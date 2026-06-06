@@ -22,8 +22,8 @@ public class CalibrationOpMode extends OpMode {
     public static double RPM_STEP      = 50;
     public static double ANGLE_STEP    = 1.0;
 
-    private double targetRpm   = 1000;
-    private double targetAngle = 0;
+    public static double targetRpm   = 1000;
+    public static double targetAngle = 0;
     private double[] data;
 
     private boolean prevUp    = false;

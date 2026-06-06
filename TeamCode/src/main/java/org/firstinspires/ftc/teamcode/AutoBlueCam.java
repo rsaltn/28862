@@ -21,10 +21,9 @@ public class AutoBlueCam extends OpMode {
 
     // ========== НАСТРОЙКИ ==========
     public static double[] lockerStates = {0.7, 1.0};      // 0 = открыт, 1 = закрыт
-    public static double TIME_TO_SHOOT         = 2.0;       // секунды на стрельбу
-    // BUG FIX: было 5.0 и не использовалось — теперь 2.0 и реально применяется в GO_TO_COLLECT_2
-    public static double TIME_FOR_GATE_INTAKE  = 2.0;       // доп. ожидание после гейта (сек)
-    public static double[] shootRPMangle       = {3800, 80};
+    public static double TIME_TO_SHOOT         = 0.6;
+    public static double TIME_FOR_GATE_INTAKE  = 0.6;      // задержка после сбора
+    public static double[] shootRPMangle       = {3900, 160};
 
     public static double INTAKE_POWER_COLLECT  = 1.0;
     public static double INTAKE_POWER_HOLD     = 0.7;
@@ -32,8 +31,8 @@ public class AutoBlueCam extends OpMode {
 
     public static double CAMERA_TX_SIGN  = 1.0;
     public static double DEADBAND_DEG    = 1.2;
-    public static double SERVO_GAIN      = 0.025;
-    public static double SERVO_MAX_POWER = 0.7;
+    public static double SERVO_GAIN      = 0.0175;
+    public static double SERVO_MAX_POWER = 1;
 
     // BUG FIX: время аварийного выхода 28 → 29 секунд
     public static double EMERGENCY_EXIT_TIME = 29.0;
@@ -87,6 +86,8 @@ public class AutoBlueCam extends OpMode {
         intake_l   = hardwareMap.get(DcMotorEx.class, "intake_l");
         intake_r   = hardwareMap.get(DcMotorEx.class, "intake_r");
 
+        // На старте локер должен быть закрыт, чтобы мячи не выпадали
+        locker.setPower(lockerStates[1]);   // закрыт
 
         shooter.init(hardwareMap, true);
         cam.init(hardwareMap);
@@ -94,9 +95,11 @@ public class AutoBlueCam extends OpMode {
         buildPaths();
         stateTimer.resetTimer();
     }
-
     @Override
     public void start() {
+        // Дополнительная страховка: закрываем локер перед началом движения
+        locker.setPower(lockerStates[1]);
+
         shootData = shooter.createCanonData(shootRPMangle[0], shootRPMangle[1]);
         shooter.shootON(shootData);
         stateTimer.resetTimer();
@@ -105,6 +108,7 @@ public class AutoBlueCam extends OpMode {
         angleServo.setPower(0);
         aimingActive = false;
     }
+
 
     // ========== ОСНОВНОЙ ЦИКЛ ==========
     @Override
